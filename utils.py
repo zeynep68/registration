@@ -118,10 +118,10 @@ def select_appropriate_pyramid_level(img1_path, img2_path=None, img2_shape=None)
 	else:
 		blockface_shape = h5py.File(img2_path, 'r')['Image'].shape
 
-	for k in h5py.File(img1_path, 'r')['pyramid']:
-		shape = h5py.File(img1_path, 'r')['pyramid'][k].shape
+	for k in reversed(h5py.File(img1_path, 'r')['pyramid']):
+		shape = h5py.File(img1_path, 'r')['pyramid'][k].shape	
 
-		if (shape[0] <= blockface_shape[0]) and (shape[1] <= blockface_shape[1]):
+		if (shape[0] >= blockface_shape[0]) and (shape[1] >= blockface_shape[1]):
 			return k
 
 
