@@ -50,7 +50,7 @@ class DataCuration:
 		mask[mask < threshold] = 0.
 		mask[mask >= threshold] = 255.
 
-  		return mask
+		return mask
 
 	def invert_img(self, img):
 		return np.max(img) - img
