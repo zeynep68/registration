@@ -27,7 +27,7 @@ class DataPreparation:
 	def rescale_img(self, moving, interpolation=None):
 		if interpolation is None:
 			interpolation = cv2.INTER_CUBIC
-
+    
 		return cv2.resize(moving, (0,0), fx=self.scaling_factor, 
                     	  fy=self.scaling_factor, interpolation=interpolation)
 
@@ -52,35 +52,31 @@ class DataPreparation:
   
 		return {'Transmittance': trans, 'BF-Mask': bf_mask, 'Blockface': bf, 'TRANS-Mask': mod_mask}
 
-	def preprocess(self, data, normalize_value=1.0):
-		fixed_img = self.to_grayscale(data['Blockface'][:])
-		fixed_mask = data['BF-Mask'][:] 
-
-		moving = self.rescale_img(data['Transmittance'][:], fixed_img.shape)
-		moving_mask = self.rescale_img(data['TRANS-Mask'][:], fixed_img.shape)
-		
-		# set values to either 0 or 255
-
+	def preprocess(self, moving, fixed, moving_mask, fixed_mask, maxval=1.0):
+		fixed = self.to_grayscale(fixed)	
+		fixed = np.where(fixed_mask, fixed, maxval)
+  
 		fixed_mask = self.fix_mask(fixed_mask)
+  
+		moving = self.rescale_img(moving, fixed.shape)
+		moving = self.invert_img(moving)
+  
+		moving_mask = self.rescale_img(moving_mask, fixed.shape)
 		moving_mask = self.fix_mask(moving_mask)
 
-		fixed = np.where(fixed_mask, fixed, normalize_value)
+		fixed = self.normalization(fixed, max_val=maxval)
+		moving = self.normalization(moving, max_val=maxval)
 
-		inv_moving = invert_img(moving)
-		inv_fixed = invert_img(fixed)
-
-		bf_img = normalize_pixel_values(bf_img, max_val=normalize_value)
-		trans_img = normalize_pixel_values(trans_img, max_val=normalize_value)
-		inv_bf_img = normalize_pixel_values(inv_bf_img, max_val=normalize_value)
-		inv_trans_img = normalize_pixel_values(inv_trans_img, max_val=normalize_value)
-
-		return bf_img, trans_img, bf_mask_img, trans_mask_img, inv_bf_img, inv_trans_img
+		return moving, fixed, moving_mask, fixed_mask 
 
 	def fix_mask(self, mask, threshold=99):
 		mask[mask < threshold] = 0.
 		mask[mask >= threshold] = 255.
   
 		return mask
+
+	def invert_img(img):
+		return np.max(img) - img
 
 	def normalization(self, img, maxval=1.):  # [0, max_val]
 		img = ( (img - np.min(img) ) / (np.max(img) - np.min(img) ) ) * maxval
