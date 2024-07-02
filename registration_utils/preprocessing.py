@@ -46,11 +46,11 @@ class DataCuration:
 
 		return moving, fixed, moving_mask, fixed_mask 
 
-	def fix_mask(self, mask, thresimport torchhold=99):
+	def fix_mask(self, mask, threshold=99):
 		mask[mask < threshold] = 0.
 		mask[mask >= threshold] = 255.
-  
-		return mask
+
+  		return mask
 
 	def invert_img(img):
 		return np.max(img) - img
