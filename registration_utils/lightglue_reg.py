@@ -37,7 +37,7 @@ def apply_matching(img1, img2, max_num_keypoints=2048, extractor_str='superpoint
     return points0, points1
 
 
-def put_everything_together(img1, img2, feature_extractor='superpoint', max_num_keypoints=2048, k=20):
+def put_everything_together(img1, img2, feature_extractor='superpoint', max_num_keypoints=2048, k=20, path=None):
     p0, p1 = apply_matching(img1, img2, extractor_str=feature_extractor, max_num_keypoints=max_num_keypoints)
 
     p0 = p0.flip(1)
@@ -47,7 +47,8 @@ def put_everything_together(img1, img2, feature_extractor='superpoint', max_num_
     loss = transformation.fit(torch.cat((p0, p1), axis=1), n_components=k)
     
     plt.plot(loss)
-    plt.show()
+	plt.savefig(path)
+    #plt.show()
     
     with torch.no_grad():
         moving_transformed = transformation.transform_image(torch.as_tensor(img1.squeeze()).to(torch.float32),(0, 0) + img2.squeeze().shape,output_res=1.0)

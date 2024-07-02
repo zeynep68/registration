@@ -49,7 +49,7 @@ def pre_register(mask_fixed, mask_moving, moving, verbose=True, return_translate
 	if verbose:
 		print('rotation angle:', rotation_angle)
 	
-	return rotated_translated
+	return translation_vec, rotation_angle, rotated_translated
 	
 
 def extract_coordinates(mask):
