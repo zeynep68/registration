@@ -1,7 +1,6 @@
 import cv2
 import numpy as np
 
-
 class DataCuration:
 	def __init__(self, fixed_pyramid_lvl, moving_pyramid_lvl,
 		fixed_um_per_px=32.18880081176758, moving_um_per_px=1.33):
@@ -13,8 +12,8 @@ class DataCuration:
 
 
 	def compute_scaling(self, moving_um_per_px, fixed_um_per_px, moving_pyramid_lvl, fixed_pyramid_lvl):
-		moving = moving_um_per_px * 2**moving_pyramid_lvl
-		fixed = fixed_um_per_px * 2**fixed_pyramid_lvl
+		moving = moving_um_per_px * 2**int(moving_pyramid_lvl)
+		fixed = fixed_um_per_px * 2**int(fixed_pyramid_lvl)
 
 		self.scaling = moving / fixed
 
@@ -25,24 +24,24 @@ class DataCuration:
 		if interpolation is None:
 			interpolation = cv2.INTER_CUBIC
 
-		return cv2.resize(moving, (0,0), fx=self.scaling_factor, fy=self.scaling_factor, interpolation=interpolation)
+		return cv2.resize(moving, (0,0), fx=self.scaling, fy=self.scaling, interpolation=interpolation)
 
-	def prepare(self, moving, fixed, moving_mask, fixed_mask, maxval=1.0):
+	def prepare(self, fixed, fixed_mask, moving, moving_mask, maxval=1.0):
 		fixed = self.to_grayscale(fixed)	
 		fixed = np.where(fixed_mask, fixed, maxval)
   
 		fixed_mask = self.fix_mask(fixed_mask)
   
-		moving = self.rescale_img(moving, fixed.shape)
+		moving = self.rescale_img(moving)
 		moving = self.invert_img(moving)
   
-		moving_mask = self.rescale_img(moving_mask, fixed.shape)
+		moving_mask = self.rescale_img(moving_mask)
 		moving_mask = self.fix_mask(moving_mask)
 
-		fixed = self.normalization(fixed, max_val=maxval)
-		moving = self.normalization(moving, max_val=maxval)
+		fixed = self.normalization(fixed, maxval=maxval)
+		moving = self.normalization(moving, maxval=maxval)
 
-		return moving, fixed, moving_mask, fixed_mask 
+		return (fixed, fixed_mask), (moving, moving_mask)
 
 	def fix_mask(self, mask, threshold=99):
 		mask[mask < threshold] = 0.
@@ -73,13 +72,13 @@ def load_images(data, section_id, fixed_pyramid_lvl, moving_pyramid_lvl):
 		path = data[key][section_id][0]
 		path = path.replace("/p/data1/", prefix)
 
-		return h5py.File(path, 'r')['pyramid'][pyramid_lvl]
+		return h5py.File(path, 'r')['pyramid'][pyramid_lvl][:]
 
 	fixed = sub_fn(data, section_id, pyramid_lvl=fixed_pyramid_lvl, key='Blockface')
 	fixed_mask = sub_fn(data, section_id, pyramid_lvl=fixed_pyramid_lvl, key='BF-Mask')
 
-	moving = sub_fn(data, section_id, pyramid_lvl=fixed_pyramid_lvl, key='Transmittance')
-	moving_mask = sub_fn(data, section_id, pyramid_lvl=fixed_pyramid_lvl, key='TRANS-Mask')
+	moving = sub_fn(data, section_id, pyramid_lvl=moving_pyramid_lvl, key='Transmittance')
+	moving_mask = sub_fn(data, section_id, pyramid_lvl=moving_pyramid_lvl, key='TRANS-Mask')
 
 
 	return (fixed, fixed_mask), (moving, moving_mask)

@@ -5,7 +5,7 @@ from lightglue.utils import rbd
 from hidra.transformations import ODEPolyAffineTransform
 
 
-def apply_matching(img1, img2, max_num_keypoints=2048, extractor_str='superpoint'):
+def apply_matching(img1, img2, max_num_keypoints=2048, extractor_str='superpoint', path=None):
     if extractor_str == 'superpoint':
         extractor = SuperPoint(max_num_keypoints=max_num_keypoints).eval().cuda()  # load the extractor
     elif extractor_str == 'disk':
@@ -15,7 +15,7 @@ def apply_matching(img1, img2, max_num_keypoints=2048, extractor_str='superpoint
     
     feats0 = extractor.extract(img1)  # auto-resize the image, disable with resize=None
     feats1 = extractor.extract(img2)
-    
+
     # match the features
     matches01 = matcher({'image0': feats0, 'image1': feats1})
     feats0, feats1, matches01 = [rbd(x) for x in [feats0, feats1, matches01]]  # remove batch dimension
@@ -32,13 +32,14 @@ def apply_matching(img1, img2, max_num_keypoints=2048, extractor_str='superpoint
     
     axes[1].imshow(img2.cpu().squeeze(), cmap="gray")
     axes[1].scatter(points1.cpu()[:, 0], points1.cpu()[:, 1], s=1)
-    plt.show()
+    plt.savefig(path + "lightglue_features.png")
+    plt.close()
     
     return points0, points1
 
 
 def put_everything_together(img1, img2, feature_extractor='superpoint', max_num_keypoints=2048, k=20, path=None):
-    p0, p1 = apply_matching(img1, img2, extractor_str=feature_extractor, max_num_keypoints=max_num_keypoints)
+    p0, p1 = apply_matching(img1, img2, extractor_str=feature_extractor, max_num_keypoints=max_num_keypoints, path=path)
 
     p0 = p0.flip(1)
     p1 = p1.flip(1)
@@ -47,8 +48,8 @@ def put_everything_together(img1, img2, feature_extractor='superpoint', max_num_
     loss = transformation.fit(torch.cat((p0, p1), axis=1), n_components=k)
     
     plt.plot(loss)
-	plt.savefig(path)
-    #plt.show()
+    plt.savefig(path + "loss.png")
+    plt.close()
     
     with torch.no_grad():
         moving_transformed = transformation.transform_image(torch.as_tensor(img1.squeeze()).to(torch.float32),(0, 0) + img2.squeeze().shape,output_res=1.0)
@@ -56,7 +57,8 @@ def put_everything_together(img1, img2, feature_extractor='superpoint', max_num_
     plt.figure(dpi=250)
     plt.imshow(img2.cpu().squeeze(), cmap="Reds", alpha=0.5)
     plt.imshow(moving_transformed.cpu().numpy(), cmap="Greens", alpha=0.5)
-    plt.show()
+    plt.savefig(path + "lightglue_transformed.png")
+    plt.close()
     
     fig, axes = plt.subplots(1, 3, figsize=(10, 7))  # figsize can be adjusted based on your image dimensions#
     
@@ -78,6 +80,7 @@ def put_everything_together(img1, img2, feature_extractor='superpoint', max_num_
     
     # Show the plot
     plt.tight_layout()
-    plt.show()
+    plt.savefig(path + "final_result.png")
+    plt.close()
     return moving_transformed
     

@@ -1,7 +1,8 @@
 import matplotlib.pyplot as plt
 
 
-def blend_images(img1, img2, alpha=0.5, dpi=250, figsize=(10,5)):
+def blend_images(img1, img2, alpha=0.5, 
+				 dpi=250, figsize=(10,5)):
 	plt.figure(dpi=dpi, figsize=figsize)
 	plt.imshow(img1, cmap='Reds', alpha=alpha)
 	plt.imshow(img2, cmap='Greens', alpha=alpha)

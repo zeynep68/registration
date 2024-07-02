@@ -9,12 +9,13 @@ def compute_center_of_mass(img):
 	return center_of_mass(img)
 
 
-def draw_red_dot(img, coord, title='Image with center of mass'):
-	plt.imshow(img, cmap='gray')
-	plt.scatter(coord[1], coord[0], color='red', s=100)
-	plt.title(title)
-	plt.show()
-
+def draw_red_dot(img, coord, path, title='Image with center of mass'):
+    plt.imshow(img, cmap='gray')
+    plt.scatter(coord[1], coord[0], color='red', s=100)
+    plt.title(title)
+    plt.savefig(path + "COM_" + title + ".png")
+    plt.close()
+    
 
 def compute_translation_vector(fixed_com, moving_com):
 	return (fixed_com[1] - moving_com[1] , fixed_com[0] - moving_com[0])
@@ -26,22 +27,22 @@ def translate_image(img, translation_vec):
 	return cv2.warpAffine(img, M, (img.shape[1], img.shape[0]))
 
 
-def pre_register(mask_fixed, mask_moving, moving, verbose=True, return_translated_img=True):
+def pre_register(mask_fixed, mask_moving, moving, verbose=True, return_translated_img=True, path=None):
 	com1 = compute_center_of_mass(mask_fixed)	
 	com2 = compute_center_of_mass(mask_moving)	
 
 	translation_vec = compute_translation_vector(fixed_com=com1, moving_com=com2)
 
 	if verbose:
-		draw_red_dot(mask_fixed, com1)
-		draw_red_dot(mask_moving, com2)
+		draw_red_dot(mask_fixed, com1, path, title='Blockface')
+		draw_red_dot(mask_moving, com2, path, title='Transmittance')
 
 		print('COM fixed img:', com1)
 		print('COM moving img:', com2)
 		print('translation vec:', translation_vec)
 
 	translated = translate_image(moving, translation_vec)
-
+    
 	rotation_angle = compute_rotation_angle(mask_fixed, mask_moving)
 
 	rotated_translated = rotate_image(translated, rotation_angle)
