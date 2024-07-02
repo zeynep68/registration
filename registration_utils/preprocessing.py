@@ -1,8 +1,5 @@
 import cv2
-import h5py
-import torch
 import numpy as np
-from registration_utils.utils import invert_img, normalize_pixel_values
 
 
 class DataCuration:
@@ -48,7 +45,7 @@ class DataCuration:
 
 		return moving, fixed, moving_mask, fixed_mask 
 
-	def fix_mask(self, mask, threshold=99):
+	def fix_mask(self, mask, thresimport torchhold=99):
 		mask[mask < threshold] = 0.
 		mask[mask >= threshold] = 255.
   
@@ -65,10 +62,14 @@ class DataCuration:
 		return img
 
 	def to_torch(self, elements):  # lightglue expects [b,c,h,w]
+		import torch
+  
 		return [torch.tensor(e).cuda().float().unsqueeze(0).unsqueeze(0) for e in elements]  
 
 
 def load_images(data, section_id):
+    import h5py 
+    
 	def sub_fn(data, section_id, key, 
                prefix="/home/zeynepboztoprak/p/data1/",
                pyramid_lvl='00'):
