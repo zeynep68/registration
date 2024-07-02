@@ -65,22 +65,21 @@ class DataCuration:
 		return [torch.tensor(e).cuda().float().unsqueeze(0).unsqueeze(0) for e in elements]  
 
 
-def load_images(data, section_id):
-    import h5py 
-    
-	def sub_fn(data, section_id, key, 
-               prefix="/home/zeynepboztoprak/p/data1/",
-               pyramid_lvl='00'):
-     	path = data[key][section_id][0]
+def load_images(data, section_id, fixed_pyramid_lvl, moving_pyramid_lvl):
+	import h5py
+
+	def sub_fn(data, section_id, key, pyramid_lvl='00',
+			   prefix="/home/zeynepboztoprak/p/data1/"):
+		path = data[key][section_id][0]
 		path = path.replace("/p/data1/", prefix)
-	
+
 		return h5py.File(path, 'r')['pyramid'][pyramid_lvl]
 
 	fixed = sub_fn(data, section_id, pyramid_lvl=fixed_pyramid_lvl, key='Blockface')
 	fixed_mask = sub_fn(data, section_id, pyramid_lvl=fixed_pyramid_lvl, key='BF-Mask')
- 
+
 	moving = sub_fn(data, section_id, pyramid_lvl=fixed_pyramid_lvl, key='Transmittance')
 	moving_mask = sub_fn(data, section_id, pyramid_lvl=fixed_pyramid_lvl, key='TRANS-Mask')
-	
+
 
 	return (fixed, fixed_mask), (moving, moving_mask)
