@@ -12,8 +12,7 @@ class DataCuration:
 							 fixed_pyramid_lvl=fixed_pyramid_lvl)
 
 
-	def compute_scaling(self, moving_um_per_px, fixed_um_per_px,
-						moving_pyramid_lvl, fixed_pyramid_lvl):
+	def compute_scaling(self, moving_um_per_px, fixed_um_per_px, moving_pyramid_lvl, fixed_pyramid_lvl):
 		moving = moving_um_per_px * 2**moving_pyramid_lvl
 		fixed = fixed_um_per_px * 2**fixed_pyramid_lvl
 
@@ -26,8 +25,7 @@ class DataCuration:
 		if interpolation is None:
 			interpolation = cv2.INTER_CUBIC
 
-		return cv2.resize(moving, (0,0), fx=self.scaling_factor,
-						  fy=self.scaling_factor, interpolation=interpolation)
+		return cv2.resize(moving, (0,0), fx=self.scaling_factor, fy=self.scaling_factor, interpolation=interpolation)
 
 	def prepare(self, moving, fixed, moving_mask, fixed_mask, maxval=1.0):
 		fixed = self.to_grayscale(fixed)	
