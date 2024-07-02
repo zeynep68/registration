@@ -1,1 +1,0 @@
-Project specific temporary files that do not need to be shared across siblings of this project go here. Rule of thumb: "Everything that can safely be deleted to save disk space at the end of the day belongs here". Contains standard folders for checkpoints (ckpt) and logs (log).
