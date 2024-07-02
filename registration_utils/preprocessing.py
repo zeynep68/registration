@@ -26,7 +26,8 @@ class DataCuration:
 		if interpolation is None:
 			interpolation = cv2.INTER_CUBIC
 
-		return cv2.resize(moving, (0,0), fx=self.scaling_factor, fy=self.scaling_factor, interpolation=interpolation)
+		return cv2.resize(moving, (0,0), fx=self.scaling_factor,
+						  fy=self.scaling_factor, interpolation=interpolation)
 
 	def prepare(self, moving, fixed, moving_mask, fixed_mask, maxval=1.0):
 		fixed = self.to_grayscale(fixed)	
