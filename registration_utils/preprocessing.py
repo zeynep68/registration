@@ -52,12 +52,11 @@ class DataCuration:
 
   		return mask
 
-	def invert_img(img):
+	def invert_img(self, img):
 		return np.max(img) - img
 
 	def normalization(self, img, maxval=1.):  # [0, max_val]
 		img = ( (img - np.min(img) ) / (np.max(img) - np.min(img) ) ) * maxval
-  
 		img[img < 0] = 0
   
 		return img
