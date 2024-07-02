@@ -107,7 +107,7 @@ def main(brain_id="PE-2021-00981-H", modes=["Transmittance", "Retardation", "Dir
 
 	modalities['BF-Mask'] = bf_masks
 	modalities['Blockface'] = blockfaces
-	modalities['MOD-Mask'] = mod_masks
+	modalities['TRANS-Mask'] = mod_masks
 	
 	assert_each_section_available_in_each_modality(modalities)
 	for k in modalities:

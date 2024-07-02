@@ -6,19 +6,6 @@ def rgb_to_gray(img):
 	return cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
 
-def compute_scaling_factor(fixed_um_per_px, moving_um_per_px, fixed_pyramid_lvl, moving_pyramid_lvl):
-	return (moving_um_per_px * 2**moving_pyramid_lvl) / (fixed_um_per_px * 2**fixed_pyramid_lvl)
-
-
-def rescale_img(moving, scaling_factor, padding_shape=None, interpolation=None):
-	if interpolation is None:
-		interpolation = cv2.INTER_CUBIC
-
-	moving = cv2.resize(moving, (0,0), fx=scaling_factor, fy=scaling_factor, interpolation=interpolation)
-	
-	return moving
-
-
 def pad_img(image, target_shape, padding_value=0):
 	original_height, original_width = image.shape[:2]
 	target_height, target_width = target_shape
