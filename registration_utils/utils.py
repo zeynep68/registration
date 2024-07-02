@@ -2,8 +2,6 @@ import cv2
 import numpy as np
 
 
-def rgb_to_gray(img):
-	return cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
 
 def pad_img(image, target_shape, padding_value=0):
@@ -21,13 +19,3 @@ def pad_img(image, target_shape, padding_value=0):
          					  borderType=cv2.BORDER_CONSTANT, 
         					  value=padding_value)
 
-
-def invert_img(img):
-	return np.max(img) - img
-
-
-def normalize_pixel_values(img, max_val=1.):  # [0, max_val]
-	numerator = img - np.min(img) 
-	denominator = np.max(img) - np.min(img)
-
-	return (numerator / denominator) * max_val

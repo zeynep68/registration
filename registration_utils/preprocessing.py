@@ -5,7 +5,7 @@ import numpy as np
 from registration_utils.utils import invert_img, normalize_pixel_values
 
 
-class DataPreparation:
+class DataCuration:
 	def __init__(self, fixed_pyramid_lvl, moving_pyramid_lvl, 
               	 fixed_um_per_px=32.18880081176758, moving_um_per_px=1.33):	
      
@@ -31,28 +31,7 @@ class DataPreparation:
 		return cv2.resize(moving, (0,0), fx=self.scaling_factor, 
                     	  fy=self.scaling_factor, interpolation=interpolation)
 
-	def load_images(self, data, section_id, prefix="/home/zeynepboztoprak/p/data1/"):
-		bf_mask_path = data['BF-Mask'][section_id][0]
-		bf_mask_path = bf_mask_path.replace("/p/data1/", prefix)
-
-		mod_mask_path = data['TRANS-Mask'][section_id][0]
-		mod_mask_path = mod_mask_path.replace("/p/data1/", prefix)
-
-		bf_path = data['Blockface'][section_id][0]
-		bf_path = bf_path.replace("/p/data1/", prefix)
-
-		trans_path = data['Transmittance'][section_id][0]
-		trans_path = trans_path.replace("/p/data1/", prefix)
-	
-		bf_mask = h5py.File(bf_mask_path, 'r')['pyramid'][self.BF_PYRAMID_LVL]
-		mod_mask = h5py.File(mod_mask_path, 'r')['pyramid'][self.TRANS_PYRAMID_LVL]
-		bf = h5py.File(bf_path, 'r')['pyramid'][self.BF_PYRAMID_LVL]
-
-		trans = h5py.File(trans_path, 'r')['pyramid'][self.TRANS_PYRAMID_LVL]
-  
-		return {'Transmittance': trans, 'BF-Mask': bf_mask, 'Blockface': bf, 'TRANS-Mask': mod_mask}
-
-	def preprocess(self, moving, fixed, moving_mask, fixed_mask, maxval=1.0):
+	def prepare(self, moving, fixed, moving_mask, fixed_mask, maxval=1.0):
 		fixed = self.to_grayscale(fixed)	
 		fixed = np.where(fixed_mask, fixed, maxval)
   
@@ -89,4 +68,20 @@ class DataPreparation:
 		return [torch.tensor(e).cuda().float().unsqueeze(0).unsqueeze(0) for e in elements]  
 
 
+def load_images(data, section_id):
+	def sub_fn(data, section_id, key, 
+               prefix="/home/zeynepboztoprak/p/data1/",
+               pyramid_lvl='00'):
+     	path = data[key][section_id][0]
+		path = path.replace("/p/data1/", prefix)
+	
+		return h5py.File(path, 'r')['pyramid'][pyramid_lvl]
 
+	fixed = sub_fn(data, section_id, pyramid_lvl=fixed_pyramid_lvl, key='Blockface')
+	fixed_mask = sub_fn(data, section_id, pyramid_lvl=fixed_pyramid_lvl, key='BF-Mask')
+ 
+	moving = sub_fn(data, section_id, pyramid_lvl=fixed_pyramid_lvl, key='Transmittance')
+	moving_mask = sub_fn(data, section_id, pyramid_lvl=fixed_pyramid_lvl, key='TRANS-Mask')
+	
+
+	return (fixed, fixed_mask), (moving, moving_mask)
