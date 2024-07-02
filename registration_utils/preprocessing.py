@@ -3,13 +3,13 @@ import numpy as np
 
 
 class DataCuration:
-	def __init__(self, fixed_pyramid_lvl, moving_pyramid_lvl, 
-              	 fixed_um_per_px=32.18880081176758, moving_um_per_px=1.33):	
+	def __init__(self, fixed_pyramid_lvl, moving_pyramid_lvl,
+		fixed_um_per_px=32.18880081176758, moving_um_per_px=1.33):
      
 		self.compute_scaling(moving_um_per_px=moving_um_per_px,
-                             fixed_um_per_px=fixed_um_per_px,
+							 fixed_um_per_px=fixed_um_per_px,
 							 moving_pyramid_lvl=moving_pyramid_lvl,
-        					 fixed_pyramid_lvl=fixed_pyramid_lvl)
+							 fixed_pyramid_lvl=fixed_pyramid_lvl)
 
 	def compute_scaling(self, moving_um_per_px, fixed_um_per_px, 
                         moving_pyramid_lvl, fixed_pyramid_lvl): 
