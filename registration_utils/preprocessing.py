@@ -17,7 +17,7 @@ class DataCuration:
 		moving = moving_um_per_px * 2**moving_pyramid_lvl
 		fixed = fixed_um_per_px * 2**fixed_pyramid_lvl
 
-  		self.scaling = moving / fixed
+		self.scaling = moving / fixed
 
   	def to_grayscale(self, img):
 		return cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
