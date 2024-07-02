@@ -19,7 +19,7 @@ class DataCuration:
 
 		self.scaling = moving / fixed
 
-  	def to_grayscale(self, img):
+	def to_grayscale(self, img):
 		return cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
 	def rescale_img(self, moving, interpolation=None):
