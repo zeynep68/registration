@@ -64,51 +64,53 @@ def get_first_version(results):
 	return results
 
 
-def filter_sections(bf_masks, blockfaces, mod_masks, modalities):
+def filter_sections(blockface_masks, blockfaces, pli_masks, transmittance):
 	""" Keep only those sections available in each modality 
 	"""
 
-	bf_masks = {key: value for key, value in bf_masks.items() if key in modalities["transmittance"]}		
-	blockfaces = {key: value for key, value in blockfaces.items() if key in modalities["transmittance"]}		
-	mod_masks = {key: value for key, value in mod_masks.items() if key in modalities["transmittance"]}		
+	blockface_masks = {k: v for k, v in blockface_masks.items() if k in transmittance}		
+	blockfaces = {k: v for k, v in blockfaces.items() if k in transmittance}		
+	pli_masks = {k: v for k, v in pli_masks.items() if k in transmittance}		
 
-	return bf_masks, blockfaces, mod_masks
+	return blockface_masks, blockfaces, pli_masks
 
 
-def main(brain_id="PE-2021-00981-H", modes=["Transmittance", "Retardation", "Direction"], output_path=None):
-	solr = pysolr.Solr("http://ime262.ime.kfa-juelich.de:8984/solr/inm_metadata/", auth=("plibda_user", "plibda123"), timeout=4.2,)
+def main(brain_id, output_path, 
+		 pli_modes=["transmittance", "retardation", "direction"]):
+	solr = pysolr.Solr("http://ime262.ime.kfa-juelich.de:8984/solr/inm_metadata/", 
+					   auth=("plibda_user", "plibda123"), timeout=4.2,)
+	pli = {}
 
 	blockface_masks = solr.search(get_blockface_mask_query(brain_id=brain_id))
+	print('1:',len(blockface_masks))
 	blockface_masks = split_by_section_id(blockface_masks, measurement_time=False)
-	blockface_masks = get_first_version(blockface_masks)
+	pli['blockface_masks'] = get_first_version(blockface_masks)
 
 	blockfaces = solr.search(get_blockface_query(brain_id=brain_id))	
+	print('2:',len(blockface))
 	blockfaces = split_by_section_id(blockfaces, measurement_time=False)
-	blockfaces = get_first_version(blockfaces)
+	pli['blockfaces'] = get_first_version(blockfaces)
 
 	pli_masks = solr.search(get_pli_mask_query(brain_id=brain_id))
+	print('3:',len(pli_masks))
 	pli_masks = split_by_section_id(pli_masks, measurement_time=False)
-	pli_masks = get_first_version(pli_masks)
+	pli['pli_masks'] = get_first_version(pli_masks)
 
-	modalities = {}
-	for m in modes:
-		results = solr.search(get_pli_query(brain_id=brain_id, mode=m))
+	for mode in pli_modes:
+		results = solr.search(get_pli_query(brain_id=brain_id, mode=mode))
 
-		modalities[m.lower()] = get_first_timestamp(split_by_section_id(results))
+		pli[mode] = get_first_timestamp(split_by_section_id(results))
 
-	blockface_masks, blockfaces, pli_masks  = filter_sections(blockface_masks, blockfaces, pli_masks, modalities)
-
-	modalities['blockface_mask'] = blockface_masks
-	modalities['blockface'] = blockfaces
-	modalities['pli_mask'] = pli_masks
+	blockface_masks, blockfaces, pli_masks  = filter_sections(blockface_masks, blockfaces, pli_masks, pli["transmittance"])
 	
-	#assert_each_section_available_in_each_modality(modalities)
-	for k in modalities:
-		print(k, len(modalities[k]))
+	assert_each_section_available_in_each_modality(pli)
+
+	for mode in pli:
+		print(mode, len(pli[mode]))
 
 	with open(output_path, 'w') as file:
-		json.dump(modalities, file, indent=4)
+		json.dump(pli, file, indent=4)
 
 
 if __name__ == "__main__":
-	main(brain_id="PE-2021-00981-H", output_path="metadata/PE-2021-00981-H.json")
+	main(brain_id="PE-2021-00981-H", output_path="pli_big_brain_paths.json")
