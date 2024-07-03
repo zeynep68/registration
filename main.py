@@ -15,11 +15,10 @@ def pad_img(image, target_shape, padding_value=0):
 	padding_left = max((target_width - original_width) // 2, 0)	
 	padding_right = max(target_width - original_width - padding_left, 0)
 
-	return cv2.copyMakeBorder(image, padding_top,
-							  padding_bottom, 
-      						  padding_left, padding_right, 
-         					  borderType=cv2.BORDER_CONSTANT, 
-        					  value=padding_value)
+	return cv2.copyMakeBorder(image, padding_top, padding_bottom, 
+      				  padding_left, padding_right, 
+         			  borderType=cv2.BORDER_CONSTANT, 
+        			  value=padding_value)
  
 
 def blend_images(img1, img2, alpha=0.5, dpi=250, figsize=(10,5), path=None):
@@ -74,7 +73,7 @@ def main(dc, fixed, fixed_mask, moving, moving_mask, section_id, path):
 	###############################################################
 	#### Pre-registration
    	###############################################################
-    translation, rotation_angle, transformed = pre_register(fixed_mask, moving_mask, moving, path=path + "images/")
+    translation, rotation_angle, transformed = pre_register(fixed_mask, moving_mask, moving, path=path + "images/", rotation=False)
     
     torch_fixed, torch_moving, torch_transformed = dc.to_torch([fixed, moving, transformed])
     
@@ -86,7 +85,7 @@ def main(dc, fixed, fixed_mask, moving, moving_mask, section_id, path):
 
 
 if __name__ == "__main__":
-    PATH = "/home/zeynepboztoprak/code/registration/metadata/pli_big_brain_paths.json"
+    PATH = "/home/zeynepboztoprak/code/registration/metadata/PE_2021_00981_H.json"
     data = json.load(open(PATH, "r"))
     
     SECTION_ID = "920"
@@ -101,4 +100,4 @@ if __name__ == "__main__":
                                                              fixed_pyramid_lvl=FIXED_PYRAMID_LVL,
                                                              moving_pyramid_lvl=MOVING_PYRAMID_LVL)
     print('Completed!' + '\n' + '---'*15)
-    main(dc, fixed, fixed_mask, moving, moving_mask, SECTION_ID, path="./results/PE-2021-00981-H/" + str(SECTION_ID) + "/")
+    main(dc, fixed, fixed_mask, moving, moving_mask, SECTION_ID, path="./registered/PE-2021-00981-H/" + str(SECTION_ID) + "/")

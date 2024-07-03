@@ -74,11 +74,11 @@ def load_images(data, section_id, fixed_pyramid_lvl, moving_pyramid_lvl):
 
 		return h5py.File(path, 'r')['pyramid'][pyramid_lvl][:]
 
-	fixed = sub_fn(data, section_id, pyramid_lvl=fixed_pyramid_lvl, key='Blockface')
-	fixed_mask = sub_fn(data, section_id, pyramid_lvl=fixed_pyramid_lvl, key='BF-Mask')
+	fixed = sub_fn(data, section_id, pyramid_lvl=fixed_pyramid_lvl, key='blockface')
+	fixed_mask = sub_fn(data, section_id, pyramid_lvl=fixed_pyramid_lvl, key='blockface_mask')
 
-	moving = sub_fn(data, section_id, pyramid_lvl=moving_pyramid_lvl, key='Transmittance')
-	moving_mask = sub_fn(data, section_id, pyramid_lvl=moving_pyramid_lvl, key='TRANS-Mask')
+	moving = sub_fn(data, section_id, pyramid_lvl=moving_pyramid_lvl, key='transmittance')
+	moving_mask = sub_fn(data, section_id, pyramid_lvl=moving_pyramid_lvl, key='pli_mask')
 
 
 	return (fixed, fixed_mask), (moving, moving_mask)

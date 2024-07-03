@@ -22,12 +22,12 @@ def compute_translation_vector(fixed_com, moving_com):
 	
 
 def translate_image(img, translation_vec):
-	M = np.float32([[1, 0, translation_vec[0]], [0, 1, translation_vec[1]]])
+    M = np.float32([[1, 0, translation_vec[0]], [0, 1, translation_vec[1]]])
+  
+    return cv2.warpAffine(img, M, (img.shape[1] + int(translation_vec[0]), img.shape[0] + int(translation_vec[1])))
 
-	return cv2.warpAffine(img, M, (img.shape[1], img.shape[0]))
 
-
-def pre_register(mask_fixed, mask_moving, moving, verbose=True, return_translated_img=True, path=None):
+def pre_register(mask_fixed, mask_moving, moving, verbose=True, return_translated_img=True, path=None, rotation=True):
 	com1 = compute_center_of_mass(mask_fixed)	
 	com2 = compute_center_of_mass(mask_moving)	
 
@@ -41,16 +41,19 @@ def pre_register(mask_fixed, mask_moving, moving, verbose=True, return_translate
 		print('COM moving img:', com2)
 		print('translation vec:', translation_vec)
 
-	translated = translate_image(moving, translation_vec)
-    
-	rotation_angle = compute_rotation_angle(mask_fixed, mask_moving)
+	transformed = translate_image(moving, translation_vec)
 
-	rotated_translated = rotate_image(translated, rotation_angle)
+	if rotation:
+		rotation_angle = compute_rotation_angle(mask_fixed, mask_moving)
+
+		transformed = rotate_image(transformed, rotation_angle)
+	else:
+		rotation_angle = None
 	
 	if verbose:
 		print('rotation angle:', rotation_angle)
 	
-	return translation_vec, rotation_angle, rotated_translated
+	return translation_vec, rotation_angle, transformed 
 	
 
 def extract_coordinates(mask):
