@@ -1,9 +1,9 @@
 import cv2
 import json
 import matplotlib.pyplot as plt
-from registration_utils.preprocessing import DataCuration, load_images 
-from registration_utils.pre_registration import pre_register
-from registration_utils.lightglue_reg import put_everything_together
+from utils.preprocessing import DataCuration, load_images 
+from utils.pre_registration import pre_register
+from utils.lightglue_reg import put_everything_together
 
 
 def pad_img(image, target_shape, padding_value=0):
@@ -86,7 +86,7 @@ def main(dc, fixed, fixed_mask, moving, moving_mask, section_id, path):
 
 
 if __name__ == "__main__":
-    PATH = "/home/zeynepboztoprak/code/registration/LightGlue/registration_utils/pli_big_brain_paths.json"
+    PATH = "/home/zeynepboztoprak/code/registration/metadata/pli_big_brain_paths.json"
     data = json.load(open(PATH, "r"))
     
     SECTION_ID = "920"
